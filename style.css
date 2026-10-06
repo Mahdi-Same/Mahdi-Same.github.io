@@ -457,15 +457,7 @@ html {
   }
 }
 
-/* === v12 Fixed Viewport Section Crossfade + Internal Section Scroll === */
-
-/*
-  Desktop interaction model:
-  - The academic page itself does not move vertically.
-  - Each whole section occupies the same viewport stage.
-  - Wheel at the end of a section crossfades to the next entire section.
-  - Long content INSIDE the current section uses a visible internal scrollbar.
-*/
+/* === v14 Fixed Section Titles + Smooth Boundary Handoff === */
 
 .academic-stage-page {
   overflow: hidden;
@@ -477,12 +469,10 @@ html {
   overflow: hidden;
 }
 
-/* Let the individual panels participate directly in the fixed stage. */
 .academic-stage > main {
   display: contents;
 }
 
-/* Every academic section and the footer share the exact same viewport. */
 .academic-stage .stage-panel,
 .academic-stage .stage-footer {
   position: absolute;
@@ -493,14 +483,13 @@ html {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: scale(.995);
+  transform: scale(.998);
   z-index: 1;
 }
 
-/* Neutralize the old reveal transform: whole-section transitions are now controlled by Anime.js. */
 .academic-stage .stage-panel.reveal {
   opacity: 0;
-  transform: scale(.995);
+  transform: scale(.998);
 }
 
 .academic-stage .stage-panel.is-active,
@@ -512,7 +501,6 @@ html {
   z-index: 2;
 }
 
-/* Keep section content vertically balanced within the fixed viewport. */
 .academic-stage .page-hero,
 .academic-stage .section {
   min-height: 100%;
@@ -522,7 +510,7 @@ html {
   align-items: center;
 }
 
-/* The footer becomes the final full-screen panel. */
+/* Final footer is also a fixed viewport panel */
 .academic-stage .stage-footer {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -534,59 +522,65 @@ html {
   background: linear-gradient(180deg, #f2f8fd 0%, #e8f2fa 100%);
 }
 
-/* ---------- Internal section scroll ---------- */
+/* ---------- Fixed title + scrolling body ---------- */
 
-.section-inner-scroll {
+.section-content-fixed {
+  height: min(74vh, 720px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+/* Heading remains visually fixed while the body below it moves */
+.section-content-fixed > .section-heading-row {
   position: relative;
-  max-height: calc(100vh - 210px);
+  z-index: 3;
+  margin-bottom: 22px;
+  background: transparent;
+}
+
+/* No visible inner scrollbar. Content still responds to mouse wheel. */
+.section-body-scroll {
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 18px;
+  padding-right: 8px;
   scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(21,94,155,.56) rgba(255,255,255,.42);
-  scrollbar-gutter: stable;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  /* Soft mask makes content disappear naturally beneath the fixed title/bottom */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 22px,
+    #000 calc(100% - 22px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 22px,
+    #000 calc(100% - 22px),
+    transparent 100%
+  );
 }
 
-/* Make the scrollbar visually intentional in Chrome / Edge */
-.section-inner-scroll::-webkit-scrollbar {
-  width: 9px;
+.section-body-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-.section-inner-scroll::-webkit-scrollbar-track {
-  background: rgba(255,255,255,.42);
-  border-radius: 999px;
+/* Give the moving content a little breathing room under the fixed heading */
+.section-body-scroll > :first-child {
+  margin-top: 8px;
 }
 
-.section-inner-scroll::-webkit-scrollbar-thumb {
-  background: rgba(21,94,155,.52);
-  border-radius: 999px;
-  border: 2px solid rgba(255,255,255,.55);
+.section-body-scroll > :last-child {
+  margin-bottom: 24px;
 }
 
-.section-inner-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(21,94,155,.72);
-}
-
-/* Subtle cue when a section actually contains more scrollable content */
-.section-inner-scroll.has-overflow::after {
-  content: "SCROLL CONTENT";
-  position: sticky;
-  display: block;
-  bottom: 0;
-  width: max-content;
-  margin: 12px 0 0 auto;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,.78);
-  font-family: 'DM Mono', monospace;
-  font-size: 8px;
-  letter-spacing: .12em;
-  color: rgba(21,94,155,.72);
-  pointer-events: none;
-}
-
-/* Keep research readable on its light-blue background. */
+/* Research contrast */
 #research {
   color: var(--ink);
 }
@@ -618,14 +612,14 @@ html {
   color: #34495c;
 }
 
-/* ---------- Scrollbar-style section progress ---------- */
+/* ---------- Global page progress scrollbar ---------- */
 
 .stage-scrollbar {
   position: fixed;
   right: 24px;
   top: 50%;
   transform: translateY(-50%);
-  width: 8px;
+  width: 7px;
   height: min(46vh, 360px);
   z-index: 30;
   display: flex;
@@ -638,9 +632,9 @@ html {
   width: 100%;
   height: 100%;
   border-radius: 999px;
-  background: rgba(21,94,155,.13);
+  background: rgba(21,94,155,.12);
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(21,94,155,.08);
+  box-shadow: inset 0 0 0 1px rgba(21,94,155,.07);
 }
 
 .stage-scrollbar-thumb {
@@ -650,15 +644,18 @@ html {
   width: 100%;
   min-height: 28px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(21,94,155,.88), rgba(21,94,155,.58));
-  box-shadow: 0 4px 14px rgba(21,94,155,.18);
+  background: linear-gradient(
+    180deg,
+    rgba(21,94,155,.84),
+    rgba(21,94,155,.58)
+  );
+  box-shadow: 0 4px 14px rgba(21,94,155,.16);
   transition:
-    transform .52s cubic-bezier(.2,.7,.2,1),
-    height .35s ease;
+    transform .42s cubic-bezier(.2,.7,.2,1),
+    height .3s ease;
 }
 
-/* ---------- Mobile / touch fallback ----------
-   On touch devices we keep ordinary document flow to avoid gesture traps. */
+/* ---------- Mobile / touch fallback ---------- */
 
 @media (max-width: 900px), (pointer: coarse) {
   .academic-stage-page {
@@ -693,14 +690,16 @@ html {
     min-height: auto;
   }
 
-  .section-inner-scroll {
-    max-height: none;
-    overflow: visible;
-    padding-right: 0;
+  .section-content-fixed {
+    height: auto;
+    display: block;
   }
 
-  .section-inner-scroll.has-overflow::after {
-    display: none;
+  .section-body-scroll {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding-right: 0;
   }
 
   .academic-stage .stage-footer {
@@ -716,8 +715,7 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stage-scrollbar,
-  .section-inner-scroll.has-overflow::after {
+  .stage-scrollbar {
     display: none;
   }
 }

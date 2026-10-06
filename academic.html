@@ -92,6 +92,33 @@
 <footer class="stage-footer"><div><strong>MAHDI SAME'</strong><span>Academic &amp; Research Portfolio</span></div><div class="footer-links"><a href="mailto:s.mahdi.same@gmail.com">Email ↗</a><a href="https://github.com/Mahdi-Same" target="_blank" rel="noreferrer">GitHub ↗</a><a href="index.html">Home ↗</a></div><small>© 2026 Mahdi Same</small></footer>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.academic-stage .section').forEach(section => {
+    const content = section.querySelector(':scope > div:last-child');
+    if (!content) return;
+
+    const heading = content.querySelector(':scope > .section-heading-row');
+    if (!heading) return;
+
+    content.classList.add('section-content-fixed');
+
+    const body = document.createElement('div');
+    body.className = 'section-body-scroll';
+
+    let node = heading.nextSibling;
+    while (node) {
+      const next = node.nextSibling;
+      body.appendChild(node);
+      node = next;
+    }
+
+    content.appendChild(body);
+  });
+});
+</script>
+
+
 <script type="module">
 import { animate } from 'https://cdn.jsdelivr.net/npm/animejs/+esm';
 
@@ -100,11 +127,11 @@ const panels = [
   document.querySelector('.stage-footer')
 ].filter(Boolean);
 
-
 let currentPanel = 0;
 let animating = false;
 let wheelAccumulator = 0;
 let wheelTimer = null;
+let boundaryIntent = 0;
 
 panels.forEach((panel, index) => {
   panel.classList.add('stage-panel-ready');
@@ -112,72 +139,55 @@ panels.forEach((panel, index) => {
   if (index === 0) panel.classList.add('is-active');
 });
 
-/* Right-side scrollbar-style section indicator */
+/* Right-side global scrollbar-style progress */
 const stageScrollbar = document.createElement('div');
 stageScrollbar.className = 'stage-scrollbar';
 stageScrollbar.setAttribute('aria-hidden', 'true');
 
-const stageScrollbarTrack = document.createElement('div');
-stageScrollbarTrack.className = 'stage-scrollbar-track';
+const track = document.createElement('div');
+track.className = 'stage-scrollbar-track';
 
-const stageScrollbarThumb = document.createElement('div');
-stageScrollbarThumb.className = 'stage-scrollbar-thumb';
+const thumb = document.createElement('div');
+thumb.className = 'stage-scrollbar-thumb';
 
-stageScrollbarTrack.appendChild(stageScrollbarThumb);
-stageScrollbar.appendChild(stageScrollbarTrack);
+track.appendChild(thumb);
+stageScrollbar.appendChild(track);
 document.body.appendChild(stageScrollbar);
 
-function updateProgress() {
+function updateStageScrollbar() {
   const count = Math.max(panels.length, 1);
-  const thumbHeight = 100 / count;
-  const thumbTop = currentPanel * thumbHeight;
-
-  stageScrollbarThumb.style.height = `${thumbHeight}%`;
-  stageScrollbarThumb.style.transform = `translateY(${thumbTop * (count / Math.max(count - 1, 1))}%)`;
-
-  /* More reliable pixel positioning for the actual track */
   requestAnimationFrame(() => {
-    const trackHeight = stageScrollbarTrack.clientHeight;
-    const thumbPx = trackHeight / count;
-    const maxTop = Math.max(trackHeight - thumbPx, 0);
+    const trackHeight = track.clientHeight;
+    const thumbHeight = Math.max(trackHeight / count, 30);
+    const maxTop = Math.max(trackHeight - thumbHeight, 0);
     const ratio = count <= 1 ? 0 : currentPanel / (count - 1);
 
-    stageScrollbarThumb.style.height = `${thumbPx}px`;
-    stageScrollbarThumb.style.transform = `translateY(${maxTop * ratio}px)`;
+    thumb.style.height = `${thumbHeight}px`;
+    thumb.style.transform = `translateY(${maxTop * ratio}px)`;
   });
 }
+updateStageScrollbar();
 
-updateProgress();
-
-/* Only the content inside the CURRENT section scrolls.
-   If that content can still move, wheel input stays inside it.
-   Once it reaches its boundary, the next wheel gesture changes section. */
+/* Title stays fixed; only content below it scrolls. */
 function activeScrollArea() {
-  return panels[currentPanel]?.querySelector('.section-inner-scroll') || null;
+  return panels[currentPanel]?.querySelector('.section-body-scroll') || null;
 }
 
-function canInnerScroll(area, direction) {
-  if (!area) return false;
-
-  const maxScroll = area.scrollHeight - area.clientHeight;
-  if (maxScroll <= 2) return false;
-
-  if (direction > 0) {
-    return area.scrollTop < maxScroll - 2;
-  }
-
-  return area.scrollTop > 2;
+function scrollMetrics(area) {
+  if (!area) return { canScroll: false, atTop: true, atBottom: true };
+  const max = Math.max(area.scrollHeight - area.clientHeight, 0);
+  return {
+    canScroll: max > 2,
+    atTop: area.scrollTop <= 2,
+    atBottom: area.scrollTop >= max - 2
+  };
 }
 
 function goToPanel(nextIndex) {
-  if (
-    animating ||
-    nextIndex === currentPanel ||
-    nextIndex < 0 ||
-    nextIndex >= panels.length
-  ) return;
+  if (animating || nextIndex === currentPanel || nextIndex < 0 || nextIndex >= panels.length) return;
 
   animating = true;
+  boundaryIntent = 0;
 
   const oldPanel = panels[currentPanel];
   const nextPanel = panels[nextIndex];
@@ -185,99 +195,96 @@ function goToPanel(nextIndex) {
   nextPanel.classList.add('is-active');
   nextPanel.setAttribute('aria-hidden', 'false');
 
-  /* Whole-section crossfade.
-     No vertical movement: the viewport itself stays fixed. */
   animate(oldPanel, {
     opacity: [1, 0],
-    scale: [1, .995],
-    duration: 560,
-    ease: 'inOut(2)'
+    scale: [1, .998],
+    duration: 460,
+    ease: 'out(2)'
   });
 
   animate(nextPanel, {
     opacity: [0, 1],
-    scale: [.995, 1],
-    duration: 620,
-    ease: 'inOut(2)',
+    scale: [.998, 1],
+    duration: 520,
+    ease: 'out(2)',
     onComplete: () => {
       oldPanel.classList.remove('is-active');
       oldPanel.setAttribute('aria-hidden', 'true');
 
       currentPanel = nextIndex;
-      updateProgress();
 
-      const newArea = activeScrollArea();
-      if (newArea) {
-        newArea.scrollTop = nextIndex > currentPanel ? 0 : newArea.scrollTop;
-      }
+      const nextArea = activeScrollArea();
+      if (nextArea) nextArea.scrollTop = nextIndex > currentPanel ? 0 : nextArea.scrollTop;
 
+      updateStageScrollbar();
       animating = false;
     }
   });
 }
 
-/* Mouse-wheel / trackpad behavior */
+/*
+  Smoother wheel behavior:
+  1) content inside the current section scrolls naturally;
+  2) there is no artificial "resistance" at the end;
+  3) once the content reaches its boundary, a modest continued scroll gesture
+     changes section immediately instead of requiring repeated wheel attempts.
+*/
 window.addEventListener('wheel', (event) => {
   if (window.matchMedia('(max-width: 900px), (pointer: coarse)').matches) return;
 
   const direction = event.deltaY > 0 ? 1 : -1;
   const area = activeScrollArea();
+  const metrics = scrollMetrics(area);
 
-  /* Let the internal section content use the wheel first. */
-  if (canInnerScroll(area, direction)) {
-    return;
+  if (area && metrics.canScroll) {
+    const movingInside =
+      (direction > 0 && !metrics.atBottom) ||
+      (direction < 0 && !metrics.atTop);
+
+    if (movingInside) {
+      boundaryIntent = 0;
+      return;
+    }
   }
 
   event.preventDefault();
-
   if (animating) return;
 
-  wheelAccumulator += event.deltaY;
+  /* accumulate only at a real section boundary */
+  boundaryIntent += Math.abs(event.deltaY);
 
   clearTimeout(wheelTimer);
   wheelTimer = setTimeout(() => {
-    wheelAccumulator = 0;
-  }, 150);
+    boundaryIntent = 0;
+  }, 120);
 
-  if (Math.abs(wheelAccumulator) < 65) return;
+  /* low threshold removes the old sticky/resistant feeling */
+  if (boundaryIntent < 22) return;
 
-  const nextIndex = currentPanel + (wheelAccumulator > 0 ? 1 : -1);
-  wheelAccumulator = 0;
-  goToPanel(nextIndex);
+  boundaryIntent = 0;
+  goToPanel(currentPanel + direction);
 }, { passive: false });
 
-/* Keyboard support */
 window.addEventListener('keydown', (event) => {
   if (window.matchMedia('(max-width: 900px), (pointer: coarse)').matches) return;
 
   const area = activeScrollArea();
+  const metrics = scrollMetrics(area);
 
   if (event.key === 'ArrowDown' || event.key === 'PageDown') {
-    if (canInnerScroll(area, 1)) return;
+    if (area && metrics.canScroll && !metrics.atBottom) return;
     event.preventDefault();
     goToPanel(currentPanel + 1);
   }
 
   if (event.key === 'ArrowUp' || event.key === 'PageUp') {
-    if (canInnerScroll(area, -1)) return;
+    if (area && metrics.canScroll && !metrics.atTop) return;
     event.preventDefault();
     goToPanel(currentPanel - 1);
   }
 });
 
-/* Add a subtle cue only to content columns that truly overflow. */
-function updateScrollCues() {
-  document.querySelectorAll('.section-inner-scroll').forEach(area => {
-    area.classList.toggle(
-      'has-overflow',
-      area.scrollHeight > area.clientHeight + 4
-    );
-  });
-}
-
-window.addEventListener('resize', updateScrollCues);
-window.addEventListener('load', updateScrollCues);
-updateScrollCues();
+window.addEventListener('resize', updateStageScrollbar);
 </script>
 </body>
 </html>
