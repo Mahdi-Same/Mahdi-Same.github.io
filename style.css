@@ -719,3 +719,159 @@ html {
     display: none;
   }
 }
+
+/* === v15 Ultra-smooth section title transition === */
+
+/*
+  Prevent older reveal/transition rules from making the section title
+  appear a fraction later than the panel itself.
+*/
+.academic-stage .stage-panel .section-heading-row,
+.academic-stage .stage-panel .eyebrow,
+.academic-stage .stage-panel h1 {
+  transition: none !important;
+  will-change: opacity, transform;
+}
+
+/* Keep the fixed heading visually stable while content underneath scrolls. */
+.section-content-fixed > .section-heading-row {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/*
+  Slightly softer panel compositing makes the handoff feel continuous
+  instead of like one layer disappears and another suddenly appears.
+*/
+.academic-stage .stage-panel,
+.academic-stage .stage-footer {
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
+/* === v16 Faster Crossfade + Global Wheel Routing === */
+
+/*
+  The section transition is intentionally minimal:
+  opacity only, very short duration, no scale, no delayed heading.
+  Anime.js owns the actual opacity animation.
+*/
+.academic-stage .stage-panel,
+.academic-stage .stage-footer {
+  transform: none !important;
+  transition: none !important;
+  will-change: opacity;
+}
+
+.academic-stage .stage-panel.reveal,
+.academic-stage .stage-panel.is-active,
+.academic-stage .stage-footer.is-active {
+  transform: none !important;
+}
+
+/* Titles stay fully composed with their section instead of animating separately. */
+.academic-stage .stage-panel .section-heading-row,
+.academic-stage .stage-panel .eyebrow,
+.academic-stage .stage-panel h1 {
+  opacity: 1;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto;
+}
+
+/*
+  Internal content remains scrollbar-free visually, but it is scrollable
+  from ANY mouse position because the window-level wheel handler routes
+  the wheel delta to the active .section-body-scroll.
+*/
+.section-body-scroll {
+  overscroll-behavior: contain;
+}
+
+/* === v17 Smooth Layered Section Transition === */
+
+/*
+  Keep section animation fluid without bringing back the old mechanical snap.
+  Anime.js handles opacity/translate/blur; CSS only improves compositing.
+*/
+.academic-stage .stage-panel,
+.academic-stage .stage-footer {
+  transition: none !important;
+  will-change: opacity, transform, filter;
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
+/* Keep every heading locked to its section so it enters/exits as one layer. */
+.academic-stage .stage-panel .section-heading-row,
+.academic-stage .stage-panel .eyebrow,
+.academic-stage .stage-panel h1 {
+  transition: none !important;
+  will-change: auto;
+}
+
+/* Avoid harsh edges during the crossfade. */
+.academic-stage {
+  isolation: isolate;
+}
+
+/*
+  The scrolling content keeps its existing behavior:
+  wheel anywhere on the page drives the active section body first,
+  then hands off to the next section at the boundary.
+*/
+.section-body-scroll {
+  overscroll-behavior: contain;
+}
+
+/* === v18 Teaching Card Spacing Refinement === */
+#teaching .compact-list > div {
+  grid-template-columns: 165px minmax(0, 1fr) 190px;
+  column-gap: 34px;
+  padding: 24px 30px;
+  align-items: center;
+}
+#teaching .compact-list > div > span {
+  white-space: nowrap;
+  line-height: 1.45;
+}
+#teaching .compact-list h3 {
+  padding-left: 4px;
+}
+#teaching .compact-list b {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+#teaching .compact-list > div + div {
+  margin-top: 2px;
+}
+@media (max-width: 1200px) {
+  #teaching .compact-list > div {
+    grid-template-columns: 150px minmax(0, 1fr) 170px;
+    column-gap: 26px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+@media (max-width: 900px) {
+  #teaching .compact-list > div {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 10px 22px;
+    padding: 21px 20px;
+  }
+  #teaching .compact-list b {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+    padding-right: 0;
+  }
+  #teaching .compact-list > div > span {
+    white-space: normal;
+  }
+  #teaching .compact-list h3 {
+    padding-left: 0;
+  }
+}

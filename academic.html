@@ -189,37 +189,68 @@ function goToPanel(nextIndex) {
   animating = true;
   boundaryIntent = 0;
 
-  const oldPanel = panels[currentPanel];
+  const previousIndex = currentPanel;
+  const oldPanel = panels[previousIndex];
   const nextPanel = panels[nextIndex];
+  const direction = nextIndex > previousIndex ? 1 : -1;
 
+  /*
+    Smooth layered transition:
+    - viewport stays fixed
+    - outgoing section gently fades and drifts
+    - incoming section appears at the same time
+    - no title/body delay or stagger
+  */
   nextPanel.classList.add('is-active');
   nextPanel.setAttribute('aria-hidden', 'false');
 
+  nextPanel.style.opacity = '0';
+  nextPanel.style.transform = `translateY(${direction * 10}px) scale(.998)`;
+  nextPanel.style.filter = 'blur(2.5px)';
+
+  oldPanel.style.filter = 'blur(0px)';
+
   animate(oldPanel, {
     opacity: [1, 0],
-    scale: [1, .998],
-    duration: 460,
-    ease: 'out(2)'
+    y: [0, direction * -7],
+    scale: [1, .9985],
+    filter: ['blur(0px)', 'blur(1.8px)'],
+    duration: 420,
+    ease: 'inOut(3)'
   });
 
   animate(nextPanel, {
     opacity: [0, 1],
+    y: [direction * 10, 0],
     scale: [.998, 1],
-    duration: 520,
-    ease: 'out(2)',
-    onComplete: () => {
-      oldPanel.classList.remove('is-active');
-      oldPanel.setAttribute('aria-hidden', 'true');
-
-      currentPanel = nextIndex;
-
-      const nextArea = activeScrollArea();
-      if (nextArea) nextArea.scrollTop = nextIndex > currentPanel ? 0 : nextArea.scrollTop;
-
-      updateStageScrollbar();
-      animating = false;
-    }
+    filter: ['blur(2.5px)', 'blur(0px)'],
+    duration: 500,
+    ease: 'out(4)'
   });
+
+  window.setTimeout(() => {
+    oldPanel.classList.remove('is-active');
+    oldPanel.setAttribute('aria-hidden', 'true');
+    oldPanel.style.opacity = '';
+    oldPanel.style.transform = '';
+    oldPanel.style.filter = '';
+
+    currentPanel = nextIndex;
+
+    const nextArea = activeScrollArea();
+    if (nextArea) {
+      nextArea.scrollTop = nextIndex > previousIndex
+        ? 0
+        : Math.max(nextArea.scrollHeight - nextArea.clientHeight, 0);
+    }
+
+    nextPanel.style.opacity = '';
+    nextPanel.style.transform = '';
+    nextPanel.style.filter = '';
+
+    updateStageScrollbar();
+    animating = false;
+  }, 510);
 }
 
 /*
@@ -236,30 +267,47 @@ window.addEventListener('wheel', (event) => {
   const area = activeScrollArea();
   const metrics = scrollMetrics(area);
 
+  /*
+    IMPORTANT:
+    wheel input is handled at window level, so the mouse can be anywhere
+    on the section. If the current section still has scrollable content,
+    that content moves even when the pointer is over the title, label,
+    empty background, etc.
+  */
   if (area && metrics.canScroll) {
     const movingInside =
       (direction > 0 && !metrics.atBottom) ||
       (direction < 0 && !metrics.atTop);
 
     if (movingInside) {
+      event.preventDefault();
       boundaryIntent = 0;
+
+      /*
+        Preserve trackpad / mouse-wheel feel by using the actual wheel delta.
+        A small multiplier makes it responsive without feeling accelerated.
+      */
+      area.scrollTop += event.deltaY * 0.92;
       return;
     }
   }
 
+  /*
+    We are at the real start/end of the section content.
+    Hand off smoothly to the adjacent section.
+  */
   event.preventDefault();
   if (animating) return;
 
-  /* accumulate only at a real section boundary */
   boundaryIntent += Math.abs(event.deltaY);
 
   clearTimeout(wheelTimer);
   wheelTimer = setTimeout(() => {
     boundaryIntent = 0;
-  }, 120);
+  }, 90);
 
-  /* low threshold removes the old sticky/resistant feeling */
-  if (boundaryIntent < 22) return;
+  /* Very small threshold: removes the "resistance" feeling at boundaries. */
+  if (boundaryIntent < 10) return;
 
   boundaryIntent = 0;
   goToPanel(currentPanel + direction);
