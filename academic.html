@@ -100,16 +100,6 @@ const panels = [
   document.querySelector('.stage-footer')
 ].filter(Boolean);
 
-const sectionNames = [
-  'Academic',
-  'Education',
-  'Research',
-  'Publications',
-  'Teaching',
-  'Courses',
-  'Projects',
-  'Contact'
-];
 
 let currentPanel = 0;
 let animating = false;
@@ -122,30 +112,42 @@ panels.forEach((panel, index) => {
   if (index === 0) panel.classList.add('is-active');
 });
 
-/* Right-side section progress */
-const progress = document.createElement('div');
-progress.className = 'stage-progress';
-progress.setAttribute('aria-label', 'Academic sections');
+/* Right-side scrollbar-style section indicator */
+const stageScrollbar = document.createElement('div');
+stageScrollbar.className = 'stage-scrollbar';
+stageScrollbar.setAttribute('aria-hidden', 'true');
 
-panels.forEach((panel, index) => {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = index === 0 ? 'is-active' : '';
-  button.setAttribute('aria-label', sectionNames[index] || `Section ${index + 1}`);
-  button.innerHTML = `<span>${String(index + 1).padStart(2, '0')}</span>`;
-  button.addEventListener('click', () => goToPanel(index));
-  progress.appendChild(button);
-});
+const stageScrollbarTrack = document.createElement('div');
+stageScrollbarTrack.className = 'stage-scrollbar-track';
 
-document.body.appendChild(progress);
+const stageScrollbarThumb = document.createElement('div');
+stageScrollbarThumb.className = 'stage-scrollbar-thumb';
 
-const progressButtons = Array.from(progress.querySelectorAll('button'));
+stageScrollbarTrack.appendChild(stageScrollbarThumb);
+stageScrollbar.appendChild(stageScrollbarTrack);
+document.body.appendChild(stageScrollbar);
 
 function updateProgress() {
-  progressButtons.forEach((button, index) => {
-    button.classList.toggle('is-active', index === currentPanel);
+  const count = Math.max(panels.length, 1);
+  const thumbHeight = 100 / count;
+  const thumbTop = currentPanel * thumbHeight;
+
+  stageScrollbarThumb.style.height = `${thumbHeight}%`;
+  stageScrollbarThumb.style.transform = `translateY(${thumbTop * (count / Math.max(count - 1, 1))}%)`;
+
+  /* More reliable pixel positioning for the actual track */
+  requestAnimationFrame(() => {
+    const trackHeight = stageScrollbarTrack.clientHeight;
+    const thumbPx = trackHeight / count;
+    const maxTop = Math.max(trackHeight - thumbPx, 0);
+    const ratio = count <= 1 ? 0 : currentPanel / (count - 1);
+
+    stageScrollbarThumb.style.height = `${thumbPx}px`;
+    stageScrollbarThumb.style.transform = `translateY(${maxTop * ratio}px)`;
   });
 }
+
+updateProgress();
 
 /* Only the content inside the CURRENT section scrolls.
    If that content can still move, wheel input stays inside it.
