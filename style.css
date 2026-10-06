@@ -348,3 +348,73 @@ footer{background:#f8fafc}
   background: #e2f0fb;
   color: #155e9b;
 }
+
+/* === v5 Research Contrast + Section Scroll === */
+
+/* Research section: restore strong contrast on the light-blue background */
+#research {
+  color: var(--ink);
+}
+
+#research .section-label,
+#research .section-heading-row > span,
+#research .date {
+  color: #49677f;
+}
+
+#research .section-heading-row {
+  border-color: rgba(21,94,155,.24);
+}
+
+#research .research-entry {
+  border-bottom-color: rgba(21,94,155,.20);
+}
+
+#research .research-entry h3 {
+  color: #13263a;
+}
+
+#research .research-entry .entry-title {
+  color: #365b78;
+}
+
+#research .research-entry ul,
+#research .research-entry li {
+  color: #34495c;
+}
+
+#research .research-entry:hover {
+  background: rgba(255,255,255,.55);
+  transform: translateX(6px);
+}
+
+/* Smooth section-by-section scroll */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 76px;
+}
+
+main > section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Anchor links land below the sticky navbar */
+main > section[id] {
+  scroll-margin-top: 76px;
+}
+
+/* On small screens, keep scrolling fully natural */
+@media (max-width: 900px) {
+  html {
+    scroll-snap-type: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}
