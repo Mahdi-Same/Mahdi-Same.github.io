@@ -166,3 +166,147 @@ footer{background:#f8fafc}
 .hero-portrait .photo-frame{border-radius:18px;overflow:hidden}
 .hero-portrait img{width:100%;height:100%;object-fit:cover}
 .photo-placeholder{background:linear-gradient(135deg,#dbeafe,#e2e8f0);color:#64748b}
+
+
+/* === Academic page section color system === */
+
+/* alternating soft section backgrounds */
+#education{
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+  border-radius:28px;
+}
+
+#publications{
+  background:linear-gradient(180deg,#eff6ff 0%,#f8fafc 100%);
+}
+
+#teaching{
+  background:#ffffff;
+}
+
+#courses{
+  background:linear-gradient(180deg,#fffaf4 0%,#f8fafc 100%);
+}
+
+#projects{
+  background:linear-gradient(180deg,#f8fbff 0%,#ffffff 100%);
+}
+
+/* stronger education cards */
+.featured-entry{
+  background:rgba(255,255,255,.75);
+  padding:32px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  margin-bottom:18px;
+  transition:.3s ease;
+}
+
+.featured-entry:hover{
+  background:var(--blue-soft);
+  transform:translateY(-5px);
+  border-color:#b9d7ed;
+}
+
+/* interest boxes */
+.interest-grid span{
+  background:#fff;
+  transition:.3s ease;
+}
+
+.interest-grid span:hover{
+  background:var(--blue-soft);
+  color:var(--blue);
+}
+
+/* publication cards */
+.publication-list article{
+  padding:30px;
+  margin-bottom:14px;
+  border:1px solid transparent;
+  border-radius:16px;
+  transition:.3s ease;
+}
+
+.publication-list article:hover{
+  background:#fff;
+  border-color:#cfe2f3;
+  transform:translateY(-4px);
+}
+
+/* teaching alternating cards */
+.compact-list>div{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:22px 24px;
+  margin-bottom:12px;
+  background:#fff;
+  transition:.3s ease;
+}
+
+.compact-list>div:nth-child(even){
+  background:#f5f9fd;
+}
+
+.compact-list>div:hover{
+  background:var(--blue-soft);
+  transform:translateX(5px);
+}
+
+/* course grid cards */
+.course-grid div{
+  background:#fff;
+  transition:.3s ease;
+}
+
+.course-grid div:nth-child(odd){
+  background:#f5f9fd;
+}
+
+.course-grid div:hover{
+  background:var(--blue-soft);
+}
+
+/* project cards */
+.project-list>article{
+  padding:32px;
+  margin-bottom:18px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  transition:.35s ease;
+}
+
+.project-list>article:nth-child(even){
+  background:#f3f8fc;
+}
+
+.project-list>article:hover{
+  transform:translateY(-6px);
+  border-color:#b7d6ec;
+  box-shadow:0 18px 35px rgba(15,94,155,.08);
+}
+
+.project-list>article>span{
+  color:var(--blue);
+}
+
+/* keep dark research premium */
+.dark-section{
+  border-radius:0;
+}
+
+.dark-section .research-entry{
+  transition:.3s ease;
+}
+
+.dark-section .research-entry:hover{
+  background:rgba(255,255,255,.04);
+  padding-left:15px;
+}
+
+/* section breathing */
+.section{
+  position:relative;
+  overflow:hidden;
+}
