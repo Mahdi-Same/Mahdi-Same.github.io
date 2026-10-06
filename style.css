@@ -349,9 +349,9 @@ footer{background:#f8fafc}
   color: #155e9b;
 }
 
-/* === v5 Research Contrast + Section Scroll === */
+/* === v6 Research Contrast + Viewport Fade Reveal === */
 
-/* Research section: restore strong contrast on the light-blue background */
+/* Research contrast on the light-blue alternating section */
 #research {
   color: var(--ink);
 }
@@ -388,33 +388,215 @@ footer{background:#f8fafc}
   transform: translateX(6px);
 }
 
-/* Smooth section-by-section scroll */
+/* Normal scrolling — no snap, no forced section locking */
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y proximity;
-  scroll-padding-top: 76px;
+  scroll-snap-type: none;
 }
 
-main > section {
-  scroll-snap-align: start;
-  scroll-snap-stop: normal;
+/* Section reveal:
+   each section gently fades and lifts when it enters the viewport.
+   Your existing IntersectionObserver adds .is-visible. */
+.section.reveal,
+.page-hero.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity .85s ease,
+    transform .85s cubic-bezier(.2,.7,.2,1);
+  will-change: opacity, transform;
 }
 
-/* Anchor links land below the sticky navbar */
-main > section[id] {
-  scroll-margin-top: 76px;
+.section.reveal.is-visible,
+.page-hero.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-/* On small screens, keep scrolling fully natural */
-@media (max-width: 900px) {
-  html {
-    scroll-snap-type: none;
-  }
+/* Very subtle "live" highlight as a section becomes visible */
+.section.reveal::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255,255,255,.16) 45%,
+    transparent 70%
+  );
+  transition: opacity .7s ease;
 }
 
+.section.reveal.is-visible::after {
+  opacity: 1;
+}
+
+/* Keep the overlay behind actual section content */
+.section.reveal > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .section.reveal,
+  .page-hero.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .section.reveal::after {
+    display: none;
+  }
+}
+
+/* === v7 Teaching Internal Scroll === */
+/* The TA list becomes its own scrollable area.
+   While the pointer is over it, the list scrolls instead of the whole page.
+   Each TA item gently snaps into place. */
+
+#teaching .compact-list {
+  max-height: 430px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(21,94,155,.45) rgba(255,255,255,.35);
+}
+
+#teaching .compact-list > div {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Chrome / Edge scrollbar */
+#teaching .compact-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+#teaching .compact-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.35);
+  border-radius: 999px;
+}
+
+#teaching .compact-list::-webkit-scrollbar-thumb {
+  background: rgba(21,94,155,.42);
+  border-radius: 999px;
+}
+
+#teaching .compact-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(21,94,155,.62);
+}
+
+/* Keep the nested scroll comfortable on mobile */
+@media (max-width: 900px) {
+  #teaching .compact-list {
+    max-height: 380px;
+    scroll-snap-type: y proximity;
+  }
+}
+
+/* === v8 Internal Scroll Areas ===
+   Internal scrolling is enabled only where the content is long enough
+   to benefit from it: Research, Publications, Teaching, and Projects.
+*/
+
+/* Shared scroll-area behavior */
+#research > div:last-child,
+#publications .publication-list,
+#teaching .compact-list,
+#projects .project-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(21,94,155,.48) rgba(255,255,255,.34);
+  padding-right: 10px;
+}
+
+/* Individual heights tuned to each section */
+#research > div:last-child {
+  max-height: 560px;
+}
+
+#publications .publication-list {
+  max-height: 390px;
+}
+
+#teaching .compact-list {
+  max-height: 430px;
+}
+
+#projects .project-list {
+  max-height: 500px;
+}
+
+/* Each item settles naturally as the inner area scrolls */
+#research .research-entry,
+#publications .publication-list article,
+#teaching .compact-list > div,
+#projects .project-list > article {
+  scroll-snap-align: start;
+}
+
+/* Shared Chrome / Edge scrollbar styling */
+#research > div:last-child::-webkit-scrollbar,
+#publications .publication-list::-webkit-scrollbar,
+#teaching .compact-list::-webkit-scrollbar,
+#projects .project-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+#research > div:last-child::-webkit-scrollbar-track,
+#publications .publication-list::-webkit-scrollbar-track,
+#teaching .compact-list::-webkit-scrollbar-track,
+#projects .project-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.34);
+  border-radius: 999px;
+}
+
+#research > div:last-child::-webkit-scrollbar-thumb,
+#publications .publication-list::-webkit-scrollbar-thumb,
+#teaching .compact-list::-webkit-scrollbar-thumb,
+#projects .project-list::-webkit-scrollbar-thumb {
+  background: rgba(21,94,155,.44);
+  border-radius: 999px;
+}
+
+#research > div:last-child::-webkit-scrollbar-thumb:hover,
+#publications .publication-list::-webkit-scrollbar-thumb:hover,
+#teaching .compact-list::-webkit-scrollbar-thumb:hover,
+#projects .project-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(21,94,155,.64);
+}
+
+/* Research scrollbar needs a slightly stronger track contrast */
+#research > div:last-child {
+  scrollbar-color: rgba(21,94,155,.52) rgba(255,255,255,.22);
+}
+
+/* Keep Education and Courses fully open:
+   they are short enough that internal scrolling would add friction. */
+
+/* Mobile: avoid nested scroll traps and let the page flow naturally */
+@media (max-width: 900px) {
+  #research > div:last-child,
+  #publications .publication-list,
+  #teaching .compact-list,
+  #projects .project-list {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
     scroll-snap-type: none;
   }
 }
