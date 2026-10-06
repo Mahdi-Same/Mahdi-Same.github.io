@@ -875,3 +875,89 @@ html {
     padding-left: 0;
   }
 }
+
+/* === v19 Teaching Layout Balance === */
+
+/*
+  Rebalance the Teaching cards:
+  - semester stays compact but readable
+  - course title shifts left and becomes the visual focus
+  - TA role becomes a subtle badge so the right side feels intentional
+*/
+#teaching .compact-list > div {
+  grid-template-columns: 170px minmax(0, 1fr) max-content;
+  column-gap: 22px;
+  padding: 23px 30px;
+  align-items: center;
+}
+
+/* Bring the term visually closer to the course title */
+#teaching .compact-list > div > span {
+  white-space: nowrap;
+  text-align: right;
+  padding-right: 10px;
+  border-right: 1px solid rgba(21,94,155,.14);
+}
+
+/* Course title becomes the main anchor instead of floating in the middle */
+#teaching .compact-list h3 {
+  padding-left: 0;
+  margin: 0;
+  max-width: 760px;
+  line-height: 1.25;
+}
+
+/* Turn the role into a quiet badge to give the right side visual purpose */
+#teaching .compact-list b {
+  justify-self: end;
+  text-align: center;
+  white-space: nowrap;
+  padding: 7px 11px;
+  border-radius: 999px;
+  background: rgba(21,94,155,.07);
+  border: 1px solid rgba(21,94,155,.12);
+  color: #4d6478;
+}
+
+/* Slightly tighten the card width visually without changing the section grid */
+#teaching .compact-list {
+  padding-right: 8px;
+}
+
+/* Hover remains restrained and professional */
+#teaching .compact-list > div:hover b {
+  background: rgba(21,94,155,.11);
+  border-color: rgba(21,94,155,.18);
+}
+
+@media (max-width: 1200px) {
+  #teaching .compact-list > div {
+    grid-template-columns: 155px minmax(0, 1fr) max-content;
+    column-gap: 18px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  #teaching .compact-list h3 {
+    max-width: 620px;
+  }
+}
+
+@media (max-width: 900px) {
+  #teaching .compact-list > div {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 20px;
+  }
+
+  #teaching .compact-list > div > span {
+    text-align: left;
+    padding-right: 0;
+    border-right: 0;
+    white-space: normal;
+  }
+
+  #teaching .compact-list b {
+    justify-self: start;
+  }
+}
