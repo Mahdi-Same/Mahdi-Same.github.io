@@ -1041,3 +1041,303 @@ html {
     margin-left: 0;
   }
 }
+
+/* === v21 Publications Layout Refinement === */
+
+/*
+  Publications:
+  - stronger visual hierarchy
+  - cleaner year column
+  - more deliberate spacing
+  - title width controlled for readability
+  - cards feel balanced instead of stretched
+*/
+#publications .publication-list {
+  display: grid;
+  gap: 14px;
+}
+
+#publications .publication-list article {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr);
+  column-gap: 28px;
+  align-items: start;
+  padding: 28px 32px;
+  border: 1px solid rgba(21,94,155,.10);
+  border-radius: 16px;
+  background: rgba(255,255,255,.82);
+}
+
+/* Make the year feel intentional, not like a loose number at the edge */
+#publications .pub-year {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: rgba(196,122,44,.08);
+  border: 1px solid rgba(196,122,44,.14);
+  color: var(--amber);
+  font-weight: 500;
+}
+
+/* Keep titles readable and visually anchored */
+#publications .publication-list h3 {
+  margin: 0 0 10px;
+  max-width: 1040px;
+  font-size: clamp(20px, 1.55vw, 28px);
+  line-height: 1.3;
+  letter-spacing: -.02em;
+}
+
+/* Authors/conference line: softer but still easy to read */
+#publications .publication-list p {
+  margin: 0;
+  max-width: 980px;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* Small accent to keep the card from looking too empty */
+#publications .publication-list article::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22px;
+  bottom: 22px;
+  width: 3px;
+  border-radius: 999px;
+  background: rgba(21,94,155,.22);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+#publications .publication-list article {
+  position: relative;
+}
+
+#publications .publication-list article:hover::before {
+  opacity: 1;
+}
+
+/* Slightly stronger hover, still academic/professional */
+#publications .publication-list article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(21,94,155,.10);
+  border-color: rgba(21,94,155,.18);
+}
+
+@media (max-width: 1100px) {
+  #publications .publication-list article {
+    grid-template-columns: 78px minmax(0, 1fr);
+    column-gap: 22px;
+    padding: 24px 26px;
+  }
+
+  #publications .publication-list h3 {
+    font-size: 21px;
+  }
+}
+
+@media (max-width: 700px) {
+  #publications .publication-list article {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 22px 20px;
+  }
+
+  #publications .pub-year {
+    justify-content: flex-start;
+    width: max-content;
+  }
+
+  #publications .publication-list h3 {
+    font-size: 19px;
+  }
+}
+
+/* === v22 Publications Year Vertical Alignment === */
+
+/* Center the publication year vertically relative to the full card content */
+#publications .publication-list article {
+  align-items: center;
+}
+
+/* Keep text content aligned naturally while the year stays centered */
+#publications .publication-list article > div {
+  align-self: center;
+}
+
+/* Year badge remains horizontally centered in its own column */
+#publications .pub-year {
+  align-self: center;
+}
+
+/* === v23 Publication Conference Badge === */
+
+/* Stack publication year + conference together in the left badge */
+#publications .pub-year {
+  flex-direction: column;
+  gap: 2px;
+  width: 82px;
+  min-height: 54px;
+  padding: 8px 10px;
+  line-height: 1.15;
+}
+
+#publications .pub-year strong {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--amber);
+}
+
+#publications .pub-year small {
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: .05em;
+  color: #667085;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  #publications .pub-year {
+    width: max-content;
+    align-items: flex-start;
+  }
+}
+
+/* === v24 Publication Conference Label === */
+
+/* Single-line conference/year label in the left column */
+#publications .pub-year {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  min-width: 104px;
+  min-height: 34px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(196,122,44,.08);
+  border: 1px solid rgba(196,122,44,.14);
+  color: var(--amber);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .03em;
+  white-space: nowrap;
+  line-height: 1;
+  align-self: center;
+}
+
+/* Remove old stacked badge typography rules */
+#publications .pub-year strong,
+#publications .pub-year small {
+  all: unset;
+}
+
+@media (max-width: 700px) {
+  #publications .pub-year {
+    justify-content: flex-start;
+  }
+}
+
+/* === v25 Publications Spacing Balance === */
+
+/*
+  Tighten the Publications layout without making it crowded:
+  - reduce excessive empty space inside cards
+  - keep a clear gap between badge and text
+  - control title width
+  - reduce the large vertical gaps between cards
+*/
+#publications .publication-list {
+  gap: 10px;
+}
+
+#publications .publication-list article {
+  grid-template-columns: 108px minmax(0, 1fr);
+  column-gap: 22px;
+  padding: 22px 26px;
+  min-height: 0;
+  align-items: center;
+}
+
+/* Keep the conference badge compact and vertically centered */
+#publications .pub-year {
+  min-width: 104px;
+  padding: 7px 11px;
+  justify-self: center;
+}
+
+/* Bring text a little closer to the badge while preserving breathing room */
+#publications .publication-list h3 {
+  max-width: 980px;
+  margin-bottom: 8px;
+  line-height: 1.26;
+}
+
+/* Author line slightly tighter */
+#publications .publication-list p {
+  max-width: 940px;
+  line-height: 1.5;
+}
+
+/* Make the cards feel connected to the section instead of floating too far apart */
+#publications .publication-list article + article {
+  margin-top: 0;
+}
+
+@media (min-width: 1450px) {
+  #publications .publication-list article {
+    grid-template-columns: 116px minmax(0, 1fr);
+    column-gap: 24px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+  #publications .publication-list h3 {
+    max-width: 1080px;
+  }
+
+  #publications .publication-list p {
+    max-width: 1000px;
+  }
+}
+
+@media (max-width: 1100px) {
+  #publications .publication-list article {
+    grid-template-columns: 100px minmax(0, 1fr);
+    column-gap: 18px;
+    padding: 20px 22px;
+  }
+
+  #publications .publication-list h3 {
+    max-width: none;
+  }
+
+  #publications .publication-list p {
+    max-width: none;
+  }
+}
+
+@media (max-width: 700px) {
+  #publications .publication-list {
+    gap: 12px;
+  }
+
+  #publications .publication-list article {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 20px;
+  }
+
+  #publications .pub-year {
+    justify-self: start;
+  }
+}
